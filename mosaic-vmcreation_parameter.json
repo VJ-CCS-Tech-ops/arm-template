@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "azd-uk-key-vault"
+        },
+        "secretName": "azureuser"
+      }
+    },
+    "nicName": {
+      "value": "VM-Nic"
+    },
+    "addressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "subnetName": {
+      "value": "VM-subnet-test"
+    },
+    "subnetPrefix": {
+      "value": "10.0.0.0/24"
+    },
+    "storageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "publicIPAddressName": {
+      "value": "VM-PIP-test"
+    },
+    "publicIPAddressType": {
+      "value": "Dynamic"
+    },
+    "vmName": {
+      "value": "VM-machine-test"
+    },
+    "virtualNetworkName": {
+      "value": "VM-vnet-test"
+    }
+
+  }
+}
