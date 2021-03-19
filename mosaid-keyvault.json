@@ -1,0 +1,56 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "privateEndpoints_Key_vault_endpoint_name": {
+            "defaultValue": "Key_vault_endpoint",
+            "type": "String"
+        },
+        "vaults_Mosaic_PHI_key_vault_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.KeyVault/vaults/Mosaic-PHI-key-vault",
+            "type": "String"
+        },
+        "virtualNetworks_Mosaic_PHI_Virtual_Network_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.Network/virtualNetworks/Mosaic_PHI_Virtual_Network",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('privateEndpoints_Key_vault_endpoint_name')]",
+            "location": "uksouth",
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[concat(parameters('privateEndpoints_Key_vault_endpoint_name'), '_e12bdadd-83b3-4c4a-8977-ff46bc032012')]",
+                        "properties": {
+                            "privateLinkServiceId": "[parameters('vaults_Mosaic_PHI_key_vault_externalid')]",
+                            "groupIds": [
+                                "vault"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "subnet": {
+                    "id": "[concat(parameters('virtualNetworks_Mosaic_PHI_Virtual_Network_externalid'), '/subnets/PHP_Private_VM_subnet')]"
+                },
+                "customDnsConfigs": [
+                    {
+                        "fqdn": "mosaic-phi-key-vault.vaultcore.azure.net",
+                        "ipAddresses": [
+                            "10.0.1.4"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

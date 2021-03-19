@@ -1,0 +1,308 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachineScaleSets_Mosaic_VMSS_name": {
+            "defaultValue": "Mosaic-VMSS",
+            "type": "String"
+        },
+        "networkSecurityGroups_basicNsgVMSS_nic_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.Network/networkSecurityGroups/basicNsgVMSS-nic",
+            "type": "String"
+        },
+        "virtualNetworks_Mosaic_PHI_Virtual_Network_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.Network/virtualNetworks/Mosaic_PHI_Virtual_Network",
+            "type": "String"
+        },
+        "disks_Mosaic_VMSS_Mosaic_VMSS_1_OsDisk_1_907325123ef64e719873b06d61e6e1ee_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.Compute/disks/Mosaic-VMSS_Mosaic-VMSS_1_OsDisk_1_907325123ef64e719873b06d61e6e1ee",
+            "type": "String"
+        },
+        "disks_Mosaic_VMSS_Mosaic_VMSS_2_OsDisk_1_a768f2672e214dc6af6ad24110bc5eba_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.Compute/disks/Mosaic-VMSS_Mosaic-VMSS_2_OsDisk_1_a768f2672e214dc6af6ad24110bc5eba",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('virtualMachineScaleSets_Mosaic_VMSS_name')]",
+            "location": "uksouth",
+            "sku": {
+                "name": "Standard_DS1_v2",
+                "tier": "Standard",
+                "capacity": 2
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "singlePlacementGroup": true,
+                "upgradePolicy": {
+                    "mode": "Manual"
+                },
+                "scaleInPolicy": {
+                    "rules": [
+                        "Default"
+                    ]
+                },
+                "virtualMachineProfile": {
+                    "osProfile": {
+                        "computerNamePrefix": "mosaic-vm",
+                        "adminUsername": "adminUserName",
+                        "windowsConfiguration": {
+                            "provisionVMAgent": true,
+                            "enableAutomaticUpdates": true
+                        },
+                        "secrets": []
+                    },
+                    "storageProfile": {
+                        "osDisk": {
+                            "osType": "Windows",
+                            "createOption": "FromImage",
+                            "caching": "ReadWrite",
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS"
+                            },
+                            "diskSizeGB": 127
+                        },
+                        "imageReference": {
+                            "publisher": "MicrosoftWindowsServer",
+                            "offer": "WindowsServer",
+                            "sku": "2019-Datacenter",
+                            "version": "latest"
+                        }
+                    },
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": "VMSS-nic",
+                                "properties": {
+                                    "primary": true,
+                                    "enableAcceleratedNetworking": false,
+                                    "networkSecurityGroup": {
+                                        "id": "[parameters('networkSecurityGroups_basicNsgVMSS_nic_externalid')]"
+                                    },
+                                    "dnsSettings": {
+                                        "dnsServers": []
+                                    },
+                                    "enableIPForwarding": false,
+                                    "ipConfigurations": [
+                                        {
+                                            "name": "VMSS-nic-defaultIpConfiguration",
+                                            "properties": {
+                                                "primary": true,
+                                                "subnet": {
+                                                    "id": "[concat(parameters('virtualNetworks_Mosaic_PHI_Virtual_Network_externalid'), '/subnets/PHP_Private_VM_subnet')]"
+                                                },
+                                                "privateIPAddressVersion": "IPv4"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "diagnosticsProfile": {
+                        "bootDiagnostics": {
+                            "enabled": true
+                        }
+                    },
+                    "extensionProfile": {
+                        "extensions": []
+                    },
+                    "priority": "Regular"
+                },
+                "overprovision": true,
+                "doNotRunExtensionsOnOverprovisionedVMs": false,
+                "platformFaultDomainCount": 5
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[concat(parameters('virtualMachineScaleSets_Mosaic_VMSS_name'), '/1')]",
+            "location": "uksouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_Mosaic_VMSS_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_DS1_v2",
+                "tier": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "networkProfileConfiguration": {
+                    "networkInterfaceConfigurations": [
+                        {
+                            "name": "VMSS-nic",
+                            "properties": {
+                                "primary": true,
+                                "enableAcceleratedNetworking": false,
+                                "networkSecurityGroup": {
+                                    "id": "[parameters('networkSecurityGroups_basicNsgVMSS_nic_externalid')]"
+                                },
+                                "dnsSettings": {
+                                    "dnsServers": []
+                                },
+                                "enableIPForwarding": false,
+                                "ipConfigurations": [
+                                    {
+                                        "name": "VMSS-nic-defaultIpConfiguration",
+                                        "properties": {
+                                            "primary": true,
+                                            "subnet": {
+                                                "id": "[concat(parameters('virtualNetworks_Mosaic_PHI_Virtual_Network_externalid'), '/subnets/PHP_Private_VM_subnet')]"
+                                            },
+                                            "privateIPAddressVersion": "IPv4"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "hardwareProfile": {},
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "Mosaic-VMSS_Mosaic-VMSS_1_OsDisk_1_907325123ef64e719873b06d61e6e1ee",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('disks_Mosaic_VMSS_Mosaic_VMSS_1_OsDisk_1_907325123ef64e719873b06d61e6e1ee_externalid')]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "mosaic-vm000001",
+                    "adminUsername": "adminUserName",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/virtualMachines', parameters('virtualMachineScaleSets_Mosaic_VMSS_name'), '1'), '/networkInterfaces/VMSS-nic')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[concat(parameters('virtualMachineScaleSets_Mosaic_VMSS_name'), '/2')]",
+            "location": "uksouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('virtualMachineScaleSets_Mosaic_VMSS_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_DS1_v2",
+                "tier": "Standard"
+            },
+            "zones": [
+                "1"
+            ],
+            "properties": {
+                "networkProfileConfiguration": {
+                    "networkInterfaceConfigurations": [
+                        {
+                            "name": "VMSS-nic",
+                            "properties": {
+                                "primary": true,
+                                "enableAcceleratedNetworking": false,
+                                "networkSecurityGroup": {
+                                    "id": "[parameters('networkSecurityGroups_basicNsgVMSS_nic_externalid')]"
+                                },
+                                "dnsSettings": {
+                                    "dnsServers": []
+                                },
+                                "enableIPForwarding": false,
+                                "ipConfigurations": [
+                                    {
+                                        "name": "VMSS-nic-defaultIpConfiguration",
+                                        "properties": {
+                                            "primary": true,
+                                            "subnet": {
+                                                "id": "[concat(parameters('virtualNetworks_Mosaic_PHI_Virtual_Network_externalid'), '/subnets/PHP_Private_VM_subnet')]"
+                                            },
+                                            "privateIPAddressVersion": "IPv4"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "hardwareProfile": {},
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "Mosaic-VMSS_Mosaic-VMSS_2_OsDisk_1_a768f2672e214dc6af6ad24110bc5eba",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('disks_Mosaic_VMSS_Mosaic_VMSS_2_OsDisk_1_a768f2672e214dc6af6ad24110bc5eba_externalid')]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "mosaic-vm000002",
+                    "adminUsername": "adminUserName",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/virtualMachines', parameters('virtualMachineScaleSets_Mosaic_VMSS_name'), '2'), '/networkInterfaces/VMSS-nic')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

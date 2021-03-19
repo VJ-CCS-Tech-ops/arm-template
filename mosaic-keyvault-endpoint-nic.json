@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "networkInterfaces_Key_vault_endpoint_nic_8c9055ff_70a9_457a_82b9_03745a6ed83f_name": {
+            "defaultValue": "Key_vault_endpoint.nic.8c9055ff-70a9-457a-82b9-03745a6ed83f",
+            "type": "String"
+        },
+        "virtualNetworks_Mosaic_PHI_Virtual_Network_externalid": {
+            "defaultValue": "/subscriptions/f8e95e2e-7d71-41d8-b6cf-04d35f21841c/resourceGroups/Mosaic_PHI_Resouce_Group/providers/Microsoft.Network/virtualNetworks/Mosaic_PHI_Virtual_Network",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('networkInterfaces_Key_vault_endpoint_nic_8c9055ff_70a9_457a_82b9_03745a6ed83f_name')]",
+            "location": "uksouth",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "vault-default.privateEndpoint",
+                        "properties": {
+                            "privateIPAddress": "10.0.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_Mosaic_PHI_Virtual_Network_externalid'), '/subnets/PHP_Private_VM_subnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        }
+    ]
+}
