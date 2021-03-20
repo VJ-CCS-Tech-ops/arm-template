@@ -53,18 +53,15 @@
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "nicName": "myVMNic",
-    "addressPrefix": "10.0.0.0/16",
-    "subnetName": "Subnet",
-    "subnetPrefix": "10.0.0.0/24",
-    "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "myPublicIP",
-    "publicIPAddressType": "Dynamic",
-    "vmName": "SimpleWindowsVM",
-    "virtualNetworkName": "MyVNET",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
     "networkSecurityGroupName": "[concat(variables('subnetName'), '-nsg')]"
   },
+
+
+
+
+
+
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -76,6 +73,7 @@
         "name": "[variables('storageAccountType')]"
       }
     },
+
     {
       "apiVersion": "2019-11-01",
       "type": "Microsoft.Network/publicIPAddresses",
